@@ -1,12 +1,14 @@
-import { Button } from "@/components/ui/button";
+import { Categories, Container, Title } from "@/components/shared";
 
 export default function Home() {
   return (
-    <h1 className="text-xl">
-      home{" "}
-      <Button className="text-xl" variant={"outline"}>
-        кнопка
-      </Button>
-    </h1>
+    <Container className="mt-10">
+      <Title
+        text="список доступных программ"
+        size="lg"
+        className="font-extrabold"
+      ></Title>
+      <Categories />
+    </Container>
   );
 }
