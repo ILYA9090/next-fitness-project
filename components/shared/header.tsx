@@ -17,9 +17,7 @@ export const Header: FC<HeaderProps> = ({ className }) => {
           <Image src="/bicep.png" alt="" width={35} height={35} />
           <div>
             <h1 className="text-2xl uppercase font-white">Made yourseld</h1>
-            <p className="text-sm text-blue">
-              Нет ничего проще-чем работа над собой
-            </p>
+            <p className="text-sm text-blue">Работа над собой - это здорово!</p>
           </div>
         </div>
         <div>
