@@ -29,8 +29,7 @@ export default function Home() {
                 name="жим лёжа"
               /> */}
               <ProductsList
-                title="Грудные"
-                categoryId={1}
+                title="Упражнения"
                 items={[
                   {
                     id: 0,
@@ -68,7 +67,110 @@ export default function Home() {
                       "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
                     name: "Отжимания",
                   },
+                  {
+                    id: 6,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Подтягивания",
+                  },
+                  {
+                    id: 7,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Тяга гантелей",
+                  },
+                  {
+                    id: 8,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Австралийские подтягивания",
+                  },
+                  {
+                    id: 9,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Тяга в хамере",
+                  },
+                  {
+                    id: 10,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Тяга штанги",
+                  },
+                  {
+                    id: 11,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Шраги",
+                  },
+                  {
+                    id: 12,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Пресс",
+                  },
                 ]}
+                categoryId={1}
+              />
+              <ProductsList
+                title="Программы"
+                items={[
+                  {
+                    id: 0,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "День спины",
+                  },
+                  {
+                    id: 1,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "День ног",
+                  },
+                  {
+                    id: 2,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "День рук",
+                  },
+                  {
+                    id: 3,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "День грудных",
+                  },
+                  {
+                    id: 4,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "День плеч",
+                  },
+                  {
+                    id: 5,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Грудные + бицепс",
+                  },
+                  {
+                    id: 6,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Спина + трицепс",
+                  },
+                  {
+                    id: 7,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Ноги + плечи",
+                  },
+                  {
+                    id: 8,
+                    imageUrl:
+                      "https://avatars.mds.yandex.net/i?id=fa675df5433a1466f1d3e2116da317cd_l-4437725-images-thumbs&n=13",
+                    name: "Пресс",
+                  },
+                ]}
+                categoryId={2}
               />
             </div>
           </div>
