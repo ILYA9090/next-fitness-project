@@ -3,7 +3,7 @@ import { FC } from "react";
 import { Container } from "./container";
 import Image from "next/image";
 import { Button, Input } from "../ui";
-import { ArrowRight, ShoppingCart, User } from "lucide-react";
+import { ArrowRight, ShoppingCart, Star, User } from "lucide-react";
 
 interface HeaderProps {
   className?: string;
@@ -30,10 +30,10 @@ export const Header: FC<HeaderProps> = ({ className }) => {
           </Button>
           <div>
             <Button className="group relative">
-              <b>520 ₽</b>
-              <span className="h-full w-[1px] bg-white/30 mx-3" />
+              {/* <b>520 ₽</b>
+              <span className="h-full w-[1px] bg-white/30 mx-3" /> */}
               <div className="flex items-center gap-1 transition duration-300 group-hover:opacity-0">
-                <ShoppingCart size={16} className="relative" strokeWidth={2} />
+                <Star size={16} className="relative" strokeWidth={2} />
                 <b>3</b>
               </div>
               <ArrowRight
