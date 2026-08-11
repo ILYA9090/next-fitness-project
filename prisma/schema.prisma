@@ -8,19 +8,126 @@ datasource db {
 
 }
 
-model User { 
-  id    Int     @id @default(autoincrement()) 
-  email String  @unique
-  fullName String
-  password String
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role UserRole @default(USER)
+  verified DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-} 
+  provider String?
+  providerId String?
+  favorites Favorite[]
+  VerificationCode VerificationCode?
+}
 
-model Product { 
-  id        Int     @id @default(autoincrement()) 
-  name  String?
-  imageUrl String
+// ========== КАТЕГОРИИ ==========
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   // "Упражнения", "Программы", "Питание", "Онлайн-ведение"
+  slug      String   @unique
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-} 
+
+  exercises Exercise[]
+  programs  Program[]
+  meals     Meal[]
+  coachings Coaching[]
+}
+
+// ========== УПРАЖНЕНИЯ ==========
+model Exercise {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  videoUrl    String?
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  programExercises ProgramExercise[]
+  createdAt        DateTime @default(now())
+}
+
+// ========== ПРОГРАММЫ ==========
+model Program {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  level       String   // "easy", "medium", "hard"
+  weeks       Int?     // количество недель
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  exercises   ProgramExercise[]
+  createdAt   DateTime @default(now())
+}
+
+// ========== СВЯЗЬ ПРОГРАММА → УПРАЖНЕНИЯ ==========
+model ProgramExercise {
+  id         Int @id @default(autoincrement())
+  programId  Int
+  program    Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  exerciseId Int
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  sets       Int? // количество подходов
+  reps       Int? // количество повторений
+  order      Int  // порядок упражнения в программе
+
+  @@unique([programId, exerciseId]) // чтобы не было дублей
+}
+
+// ========== ПИТАНИЕ ==========
+model Meal {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  calories    Int?
+  mealType    String   // "breakfast", "lunch", "dinner", "snack"
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+// ========== ОНЛАЙН-ВЕДЕНИЕ ==========
+model Coaching {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Int?
+  duration    String?  // "1 month", "3 months"
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+
+model Favorite {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  entityType String   // "exercise", "program", "meal", "coaching"
+  entityId   Int
+
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, entityType, entityId])
+}
+
+model VerificationCode {
+  id Int      @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id])
+  userId Int @unique
+  code String
+  createdAt DateTime @default(now())
+  @@unique([userId, code])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
