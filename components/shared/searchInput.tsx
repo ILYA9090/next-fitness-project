@@ -19,7 +19,6 @@ export const SearchInput = ({ className }: SearchInputProps) => {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Дебаунс
   const debouncedQuery = useDebounce(searchQuery, 500);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

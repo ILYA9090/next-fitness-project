@@ -1,6 +1,9 @@
+// app/api/catalog/route.ts
 import { prisma } from "@/prisma/prisma-client";
 import { Prisma } from "@/lib/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +20,7 @@ export async function GET(request: NextRequest) {
       ? sortBy
       : "createdAt";
 
+    // Фильтры для упражнений
     const exerciseWhere: Prisma.ExerciseWhereInput = {};
     if (muscleGroups.length > 0) {
       if (matchAll) {
@@ -30,6 +34,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Фильтры для программ
     const programWhere: Prisma.ProgramWhereInput = {};
     if (muscleGroups.length > 0) {
       if (matchAll) {
@@ -55,53 +60,121 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const [exercises, programs, exercisesTotal, programsTotal] =
-      await Promise.all([
-        prisma.exercise.findMany({
-          where: exerciseWhere,
-          orderBy: { [validSortBy]: order },
-          take: limit,
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            videoUrl: true,
-            createdAt: true,
-            muscleGroups: { select: { id: true, name: true, slug: true } },
-            _count: { select: { favorites: true } },
-          },
-        }),
+    // Фильтры для питания (если нужна фильтрация по группам мышц — добавьте логику)
+    const mealWhere: Prisma.MealWhereInput = {};
 
-        prisma.program.findMany({
-          where: programWhere,
-          orderBy: { [validSortBy]: order },
-          take: limit,
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            level: true,
-            weeks: true,
-            createdAt: true,
-            exercises: {
-              select: {
-                exercise: {
-                  select: {
-                    muscleGroups: {
-                      select: { id: true, name: true, slug: true },
-                    },
+    // Фильтры для спортпита
+    const supplementWhere: Prisma.SupplementWhereInput = {};
+
+    // Фильтры для коучинга
+    const coachingWhere: Prisma.CoachingWhereInput = {};
+
+    const [
+      exercises,
+      programs,
+      meals,
+      supplements,
+      coachings,
+      exercisesTotal,
+      programsTotal,
+      mealsTotal,
+      supplementsTotal,
+      coachingsTotal,
+    ] = await Promise.all([
+      prisma.exercise.findMany({
+        where: exerciseWhere,
+        orderBy: { [validSortBy]: order },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          videoUrl: true,
+          createdAt: true,
+          muscleGroups: { select: { id: true, name: true, slug: true } },
+          _count: { select: { favorites: true } },
+        },
+      }),
+
+      prisma.program.findMany({
+        where: programWhere,
+        orderBy: { [validSortBy]: order },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          level: true,
+          weeks: true,
+          createdAt: true,
+          exercises: {
+            select: {
+              exercise: {
+                select: {
+                  muscleGroups: {
+                    select: { id: true, name: true, slug: true },
                   },
                 },
               },
             },
-            _count: { select: { exercises: true, favorites: true } },
           },
-        }),
+          _count: { select: { exercises: true, favorites: true } },
+        },
+      }),
 
-        prisma.exercise.count({ where: exerciseWhere }),
-        prisma.program.count({ where: programWhere }),
-      ]);
+      prisma.meal.findMany({
+        where: mealWhere,
+        orderBy: { [validSortBy]: order },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          calories: true,
+          mealType: true,
+          createdAt: true,
+        },
+      }),
 
+      prisma.supplement.findMany({
+        where: supplementWhere,
+        orderBy: { [validSortBy]: order },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+          imageUrl: true,
+          brand: true,
+          weight: true,
+          flavor: true,
+          createdAt: true,
+        },
+      }),
+
+      prisma.coaching.findMany({
+        where: coachingWhere,
+        orderBy: { [validSortBy]: order },
+        take: limit,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+          duration: true,
+          createdAt: true,
+        },
+      }),
+
+      prisma.exercise.count({ where: exerciseWhere }),
+      prisma.program.count({ where: programWhere }),
+      prisma.meal.count({ where: mealWhere }),
+      prisma.supplement.count({ where: supplementWhere }),
+      prisma.coaching.count({ where: coachingWhere }),
+    ]);
+
+    // Обработка программ для получения групп мышц
     const programsWithMuscles = programs.map((program) => {
       const muscleMap = new Map<
         number,
@@ -129,11 +202,22 @@ export async function GET(request: NextRequest) {
       data: {
         exercises,
         programs: programsWithMuscles,
+        meals,
+        supplements,
+        coachings,
       },
       meta: {
         exercisesTotal,
         programsTotal,
-        total: exercisesTotal + programsTotal,
+        mealsTotal,
+        supplementsTotal,
+        coachingsTotal,
+        total:
+          exercisesTotal +
+          programsTotal +
+          mealsTotal +
+          supplementsTotal +
+          coachingsTotal,
         filters: { muscleGroups, matchAll, sortBy: validSortBy, order },
       },
     });
