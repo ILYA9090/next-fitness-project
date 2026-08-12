@@ -1,14 +1,18 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { FC, RefObject, useEffect, useRef } from "react";
 import { Title } from "./title";
-import ProductCard from "./productCard";
-import { Items } from "./types";
+import ProductCard, { ProductCardProps } from "./productCard";
 import { useIntersection } from "react-use";
 import { useCategoryStore } from "@/store/category";
+import { CATEGORIES } from "@/lib/constants";
+
+export type ProductItem = Omit<ProductCardProps, "className">;
+
 interface ProductsListProps {
   className?: string;
-  items: Items[];
+  items: ProductItem[];
   title: string;
   categoryId: number;
   listClassName?: string;
@@ -25,21 +29,33 @@ export const ProductsList: FC<ProductsListProps> = (props) => {
     },
   );
 
+  // Получаем slug для категории по её ID
+  const categorySlug =
+    CATEGORIES.find((cat) => cat.id === categoryId)?.slug || "";
+
   useEffect(() => {
     if (intersection?.isIntersecting) {
       setActiveCategoryId(categoryId);
     }
   }, [categoryId, setActiveCategoryId, intersection?.isIntersecting]);
+
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
-    <div className={cn("", className)} id={title} ref={intersectionRef}>
+    // ✅ Используем slug вместо русского названия для id
+    <div className={cn("", className)} id={categorySlug} ref={intersectionRef}>
       <Title text={title} className="font-extrabold mb-5" size="xl" />
       <div className={cn("grid grid-cols-2 gap-[50px]", listClassName)}>
         {items.map((item) => (
           <ProductCard
             key={item.id}
+            id={item.id}
             name={item.name}
             imageUrl={item.imageUrl}
-            id={item.id}
+            description={item.description}
+            type={item.type}
           />
         ))}
       </div>

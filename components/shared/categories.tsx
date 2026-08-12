@@ -2,34 +2,43 @@
 
 import { cn } from "@/lib/utils";
 import { useCategoryStore } from "@/store/category";
-import { FC, useEffect } from "react";
+import { FC, useCallback, useEffect } from "react";
+import { CATEGORIES } from "@/lib/constants";
 
 interface CategoriesProps {
   className?: string;
 }
 
-const cats = [
-  { id: 1, name: "Упражнения" },
-  { id: 2, name: "Программы" },
-  { id: 3, name: "Питание" },
-  { id: 4, name: "Ведение" },
-  { id: 5, name: "Спортивное питание" },
-];
-
 export const Categories: FC<CategoriesProps> = ({ className }) => {
   const categoryActiveId = useCategoryStore((state) => state.activeId);
   const setActiveCategoryId = useCategoryStore((state) => state.setActiveId);
 
+  const scrollToCategory = useCallback(
+    (slug: string, id: number) => {
+      const element = document.getElementById(slug);
+      if (element) {
+        const topOffset = 100;
+        const elementPosition =
+          element.getBoundingClientRect().top + window.scrollY;
+
+        window.scrollTo({
+          top: elementPosition - topOffset,
+          behavior: "smooth",
+        });
+
+        setActiveCategoryId(id);
+      }
+    },
+    [setActiveCategoryId],
+  );
+
   useEffect(() => {
     const handleScroll = () => {
-      const sections = cats
-        .map((cat) => document.getElementById(cat.name))
-        .filter(Boolean);
-
       let closestSectionId = 1;
       let closestDistance = Infinity;
 
-      sections.forEach((section, index) => {
+      CATEGORIES.forEach((cat) => {
+        const section = document.getElementById(cat.slug);
         if (section) {
           const rect = section.getBoundingClientRect();
           const centerY = rect.top + rect.height / 2;
@@ -38,7 +47,7 @@ export const Categories: FC<CategoriesProps> = ({ className }) => {
 
           if (distance < closestDistance) {
             closestDistance = distance;
-            closestSectionId = cats[index].id;
+            closestSectionId = cat.id;
           }
         }
       });
@@ -56,18 +65,19 @@ export const Categories: FC<CategoriesProps> = ({ className }) => {
     <div
       className={cn("inline-flex gap-1 bg-gray-50 p-1 rounded-2xl", className)}
     >
-      {cats.map((cat) => (
-        <a
+      {CATEGORIES.map((cat) => (
+        <button
           key={cat.id}
-          href={`/#${cat.name}`}
+          onClick={() => scrollToCategory(cat.slug, cat.id)}
           className={cn(
-            "flex items-center font-bold h-11 rounded-2xl px-5",
-            categoryActiveId === cat.id &&
-              "bg-white shadow-md shadow-gray-200 text-primary",
+            "flex items-center font-bold h-11 rounded-2xl px-5 transition",
+            categoryActiveId === cat.id
+              ? "bg-white shadow-md shadow-gray-200 text-primary"
+              : "text-gray-700 hover:text-primary",
           )}
         >
-          <button>{cat.name}</button>
-        </a>
+          {cat.name}
+        </button>
       ))}
     </div>
   );
