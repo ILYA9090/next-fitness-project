@@ -1,8 +1,10 @@
+// prisma/seed.ts
 import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma";
 import { hashSync } from "bcrypt";
+
 const connectionString = process.env.POSTGRES_URL_NON_POOLING!;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
@@ -14,10 +16,13 @@ async function down() {
 
   await prisma.$executeRaw`TRUNCATE TABLE "Favorite" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "ProgramExercise" RESTART IDENTITY CASCADE;`;
+  await prisma.$executeRaw`TRUNCATE TABLE "_ExerciseToMuscleGroup" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "Exercise" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "Program" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "Meal" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "Coaching" RESTART IDENTITY CASCADE;`;
+  await prisma.$executeRaw`TRUNCATE TABLE "Supplement" RESTART IDENTITY CASCADE;`;
+  await prisma.$executeRaw`TRUNCATE TABLE "MuscleGroup" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "Category" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "User" RESTART IDENTITY CASCADE;`;
   await prisma.$executeRaw`TRUNCATE TABLE "VerificationCode" RESTART IDENTITY CASCADE;`;
@@ -25,9 +30,11 @@ async function down() {
   console.log("✅ База очищена");
 }
 
+// ========== НАПОЛНЕНИЕ БД ==========
 async function up() {
   console.log("🌱 Начинаем сидирование...");
 
+  // ========== ПОЛЬЗОВАТЕЛИ ==========
   console.log("👤 Создаём пользователей...");
 
   await prisma.user.createMany({
@@ -66,8 +73,32 @@ async function up() {
       { name: "Программы", slug: "programs" },
       { name: "Питание", slug: "meals" },
       { name: "Онлайн-ведение", slug: "coachings" },
+      { name: "Спортивное питание", slug: "supplements" },
     ],
   });
+
+  // ========== ГРУППЫ МЫШЦ ==========
+  console.log("💪 Создаём группы мышц...");
+
+  await prisma.muscleGroup.createMany({
+    data: [
+      { name: "Грудные", slug: "chest" },
+      { name: "Бицепс", slug: "biceps" },
+      { name: "Трицепс", slug: "triceps" },
+      { name: "Передняя дельта", slug: "front-delt" },
+      { name: "Средняя дельта", slug: "side-delt" },
+      { name: "Задняя дельта", slug: "rear-delt" },
+      { name: "Широчайшие спины", slug: "lats" },
+      { name: "Трапеции", slug: "traps" },
+      { name: "Поясница", slug: "lower-back" },
+      { name: "Квадрицепс", slug: "quads" },
+      { name: "Бицепс бедра", slug: "hamstrings" },
+      { name: "Икроножные", slug: "calves" },
+      { name: "Ягодичные", slug: "glutes" },
+      { name: "Пресс", slug: "abs" },
+    ],
+  });
+  console.log("✅ Добавлены группы мышц");
 
   // ========== УПРАЖНЕНИЯ ==========
   console.log("🏋️ Создаём упражнения...");
@@ -76,9 +107,17 @@ async function up() {
     where: { slug: "exercises" },
   });
 
+  // Получаем все группы мышц для привязки
+  const muscleGroups = await prisma.muscleGroup.findMany();
+  const getMuscleGroupId = (slug: string) => {
+    return muscleGroups.find((mg) => mg.slug === slug)?.id;
+  };
+
   if (exerciseCategory) {
+    // Создаём упражнения
     await prisma.exercise.createMany({
       data: [
+        // ГРУДНЫЕ
         {
           name: "Жим лёжа",
           description: "Классическое упражнение на грудные мышцы",
@@ -86,14 +125,48 @@ async function up() {
           categoryId: exerciseCategory.id,
         },
         {
-          name: "Приседания со штангой",
-          description: "Базовое упражнение для ног и ягодиц",
+          name: "Жим гантелей на наклонной скамье",
+          description: "Упражнение для верхней части груди",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
         {
+          name: "Отжимания от пола",
+          description: "Базовое упражнение для грудных мышц, трицепсов и плеч",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // БИЦЕПС
+        {
+          name: "Сгибание рук с гантелями",
+          description: "Изолирующее упражнение на бицепс",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // ТРИЦЕПС
+        {
+          name: "Французский жим лёжа",
+          description: "Изолирующее упражнение на трицепс",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // ПЛЕЧИ (ДЕЛЬТЫ)
+        {
+          name: "Жим гантелей сидя",
+          description: "Упражнение для дельт",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        {
+          name: "Махи гантелями в стороны",
+          description: "Упражнение для средней дельты",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // СПИНА
+        {
           name: "Становая тяга",
-          description: "Упражнение для всего тела",
+          description: "Упражнение для всего тела, проработка спины и ног",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
@@ -104,14 +177,126 @@ async function up() {
           categoryId: exerciseCategory.id,
         },
         {
-          name: "Отжимания от пола",
-          description: "Базовое упражнение для грудных мышц, трицепсов и плеч",
+          name: "Тяга штанги в наклоне",
+          description: "Базовое упражнение на спину",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // НОГИ
+        {
+          name: "Приседания со штангой",
+          description: "Базовое упражнение для ног и ягодиц",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        {
+          name: "Румынская тяга",
+          description: "Упражнение на бицепс бедра и ягодицы",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // ЯГОДИЦЫ
+        {
+          name: "Выпады с гантелями",
+          description: "Упражнение для ног и ягодиц",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        // ПРЕСС
+        {
+          name: "Скручивания на пресс",
+          description: "Базовое упражнение на пресс",
+          videoUrl: "",
+          categoryId: exerciseCategory.id,
+        },
+        {
+          name: "Планка",
+          description: "Статическое упражнение на пресс и кор",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
       ],
     });
     console.log("✅ Добавлены упражнения");
+
+    // ========== ПРИВЯЗКА УПРАЖНЕНИЙ К ГРУППАМ МЫШЦ ==========
+    console.log("🔗 Привязываем упражнения к группам мышц...");
+
+    const createdExercises = await prisma.exercise.findMany();
+
+    const exerciseMuscleMap = [
+      { name: "Жим лёжа", muscleSlugs: ["chest", "front-delt", "triceps"] },
+      {
+        name: "Жим гантелей на наклонной скамье",
+        muscleSlugs: ["chest", "front-delt"],
+      },
+      {
+        name: "Отжимания от пола",
+        muscleSlugs: ["chest", "triceps", "front-delt", "abs"],
+      },
+      { name: "Сгибание рук с гантелями", muscleSlugs: ["biceps"] },
+      { name: "Французский жим лёжа", muscleSlugs: ["triceps"] },
+      { name: "Жим гантелей сидя", muscleSlugs: ["side-delt", "front-delt"] },
+      { name: "Махи гантелями в стороны", muscleSlugs: ["side-delt"] },
+      {
+        name: "Становая тяга",
+        muscleSlugs: ["lats", "lower-back", "hamstrings", "glutes", "traps"],
+      },
+      { name: "Подтягивания", muscleSlugs: ["lats", "biceps", "traps"] },
+      {
+        name: "Тяга штанги в наклоне",
+        muscleSlugs: ["lats", "traps", "biceps"],
+      },
+      {
+        name: "Приседания со штангой",
+        muscleSlugs: ["quads", "glutes", "hamstrings"],
+      },
+      {
+        name: "Румынская тяга",
+        muscleSlugs: ["hamstrings", "glutes", "lower-back"],
+      },
+      {
+        name: "Выпады с гантелями",
+        muscleSlugs: ["quads", "glutes", "hamstrings"],
+      },
+      { name: "Скручивания на пресс", muscleSlugs: ["abs"] },
+      { name: "Планка", muscleSlugs: ["abs", "front-delt"] },
+    ];
+
+    // Собираем все связи в один массив
+    const connections: { exerciseId: number; muscleGroupId: number }[] = [];
+
+    for (const item of exerciseMuscleMap) {
+      const exercise = createdExercises.find((e) => e.name === item.name);
+      if (!exercise) continue;
+
+      for (const slug of item.muscleSlugs) {
+        const muscleId = getMuscleGroupId(slug);
+        if (muscleId) {
+          connections.push({
+            exerciseId: exercise.id,
+            muscleGroupId: muscleId,
+          });
+        }
+      }
+    }
+
+    // Массовая вставка через raw SQL (мгновенно!)
+    if (connections.length > 0) {
+      const values = connections
+        .map((c) => `(${c.exerciseId}, ${c.muscleGroupId})`)
+        .join(", ");
+
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "_ExerciseToMuscleGroup" ("A", "B")
+        VALUES ${values}
+        ON CONFLICT DO NOTHING
+      `);
+
+      console.log(
+        `✅ Привязаны упражнения к группам мышц (${connections.length} связей)`,
+      );
+    }
   }
 
   // ========== ПРОГРАММЫ ==========
@@ -266,10 +451,190 @@ async function up() {
     console.log("✅ Добавлены онлайн-ведения");
   }
 
+  // ========== СПОРТИВНОЕ ПИТАНИЕ ==========
+  console.log("💊 Создаём спортивное питание...");
+
+  const supplementCategory = await prisma.category.findUnique({
+    where: { slug: "supplements" },
+  });
+
+  if (supplementCategory) {
+    await prisma.supplement.createMany({
+      data: [
+        {
+          name: "Whey Protein Gold Standard",
+          description:
+            "Сывороточный протеин с высоким содержанием белка. Отлично подходит для набора мышечной массы и восстановления после тренировок.",
+          imageUrl: "https://example.com/whey-protein.jpg",
+          price: 3990,
+          weight: "900г",
+          flavor: "Шоколад",
+          brand: "Optimum Nutrition",
+          categoryId: supplementCategory.id,
+        },
+        {
+          name: "Creatine Monohydrate",
+          description:
+            "Креатин моногидрат для повышения силы, выносливости и набора мышечной массы.",
+          imageUrl: "https://example.com/creatine.jpg",
+          price: 1990,
+          weight: "300г",
+          flavor: null,
+          brand: "MyProtein",
+          categoryId: supplementCategory.id,
+        },
+        {
+          name: "BCAA 2:1:1",
+          description:
+            "Аминокислоты с разветвлённой цепью для защиты мышц от катаболизма и улучшения восстановления.",
+          imageUrl: "https://example.com/bcaa.jpg",
+          price: 2490,
+          weight: "200г",
+          flavor: "Манго",
+          brand: "Scitec Nutrition",
+          categoryId: supplementCategory.id,
+        },
+        {
+          name: "L-Glutamine",
+          description:
+            "L-глутамин для ускорения восстановления и укрепления иммунитета.",
+          imageUrl: "https://example.com/glutamine.jpg",
+          price: 1490,
+          weight: "250г",
+          flavor: null,
+          brand: "Olimp",
+          categoryId: supplementCategory.id,
+        },
+        {
+          name: "Casein Protein",
+          description:
+            "Казеиновый протеин с медленным усвоением. Идеально подходит для приёма перед сном.",
+          imageUrl: "https://example.com/casein.jpg",
+          price: 4290,
+          weight: "900г",
+          flavor: "Ваниль",
+          brand: "Dymatize",
+          categoryId: supplementCategory.id,
+        },
+      ],
+    });
+    console.log("✅ Добавлены товары спортивного питания");
+  }
+
+  // ============================================================
+  // ========== ИЗБРАННОЕ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ ==========
+  // ============================================================
+  console.log("⭐ Добавляем избранное для пользователей...");
+
+  const users = await prisma.user.findMany();
+  const user = users.find((u) => u.email === "user@example.com");
+  const admin = users.find((u) => u.email === "admin@example.com");
+
+  const exercises = await prisma.exercise.findMany();
+  const programs = await prisma.program.findMany();
+  const meals = await prisma.meal.findMany();
+  const coachings = await prisma.coaching.findMany();
+  const supplements = await prisma.supplement.findMany();
+
+  console.log(
+    `📊 Найдено: упражнений ${exercises.length}, программ ${programs.length}, блюд ${meals.length}, коучинга ${coachings.length}, спортивного питания ${supplements.length}`,
+  );
+
+  if (user) {
+    const favoritesData = [];
+
+    if (exercises.length > 0) {
+      favoritesData.push(
+        { userId: user.id, exerciseId: exercises[0].id },
+        { userId: user.id, exerciseId: exercises[2]?.id || exercises[0].id },
+      );
+    }
+
+    if (programs.length > 0) {
+      favoritesData.push({ userId: user.id, programId: programs[0].id });
+    }
+
+    if (meals.length > 0) {
+      favoritesData.push(
+        { userId: user.id, mealId: meals[1]?.id || meals[0].id },
+        { userId: user.id, mealId: meals[3]?.id || meals[0].id },
+      );
+    }
+
+    if (coachings.length > 0) {
+      favoritesData.push({ userId: user.id, coachingId: coachings[0].id });
+    }
+
+    if (supplements.length > 0) {
+      favoritesData.push(
+        { userId: user.id, supplementId: supplements[0].id },
+        {
+          userId: user.id,
+          supplementId: supplements[1]?.id || supplements[0].id,
+        },
+      );
+    }
+
+    if (favoritesData.length > 0) {
+      await prisma.favorite.createMany({
+        data: favoritesData,
+        skipDuplicates: true,
+      });
+      console.log(
+        `✅ Добавлено избранное для пользователя ${user.email} (${favoritesData.length} записей)`,
+      );
+    }
+  }
+
+  if (admin) {
+    const favoritesData = [];
+
+    if (exercises.length > 0) {
+      favoritesData.push(
+        { userId: admin.id, exerciseId: exercises[1]?.id || exercises[0].id },
+        { userId: admin.id, exerciseId: exercises[3]?.id || exercises[0].id },
+      );
+    }
+
+    if (programs.length > 0) {
+      favoritesData.push({
+        userId: admin.id,
+        programId: programs[1]?.id || programs[0].id,
+      });
+    }
+
+    if (meals.length > 0) {
+      favoritesData.push({ userId: admin.id, mealId: meals[0].id });
+    }
+
+    if (coachings.length > 0) {
+      favoritesData.push({
+        userId: admin.id,
+        coachingId: coachings[1]?.id || coachings[0].id,
+      });
+    }
+
+    if (supplements.length > 0) {
+      favoritesData.push({
+        userId: admin.id,
+        supplementId: supplements[3]?.id || supplements[0].id,
+      });
+    }
+
+    if (favoritesData.length > 0) {
+      await prisma.favorite.createMany({
+        data: favoritesData,
+        skipDuplicates: true,
+      });
+      console.log(
+        `✅ Добавлено избранное для администратора ${admin.email} (${favoritesData.length} записей)`,
+      );
+    }
+  }
+
   console.log("🌱 Сидирование завершено!");
 }
 
-// ========== ЗАПУСК ==========
 async function main() {
   try {
     await down();

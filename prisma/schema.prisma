@@ -5,49 +5,60 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// ========== ПОЛЬЗОВАТЕЛЬ ==========
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   name      String?
-  role UserRole @default(USER)
-  verified DateTime?
+  role      UserRole @default(USER)
+  verified  DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  provider String?
+  provider  String?
   providerId String?
-  favorites Favorite[]
-  VerificationCode VerificationCode?
+
+  favorites         Favorite[]
+  VerificationCode  VerificationCode?
 }
 
 // ========== КАТЕГОРИИ ==========
 model Category {
   id        Int      @id @default(autoincrement())
-  name      String   // "Упражнения", "Программы", "Питание", "Онлайн-ведение"
+  name      String
   slug      String   @unique
   createdAt DateTime @default(now())
 
-  exercises Exercise[]
-  programs  Program[]
-  meals     Meal[]
-  coachings Coaching[]
+  exercises   Exercise[]
+  programs    Program[]
+  meals       Meal[]
+  coachings   Coaching[]
+  supplements Supplement[]
 }
 
 // ========== УПРАЖНЕНИЯ ==========
 model Exercise {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  videoUrl    String?
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  videoUrl     String?
+  categoryId   Int
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  muscleGroups MuscleGroup[] // implicit many-to-many!
 
-  programExercises ProgramExercise[]
-  createdAt        DateTime @default(now())
+  favorites         Favorite[]
+  programExercises  ProgramExercise[]
+  createdAt         DateTime @default(now())
 }
+
 
 // ========== ПРОГРАММЫ ==========
 model Program {
@@ -55,10 +66,10 @@ model Program {
   name        String
   description String?
   level       String   // "easy", "medium", "hard"
-  weeks       Int?     // количество недель
+  weeks       Int?
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
+  favorites Favorite[]
   exercises   ProgramExercise[]
   createdAt   DateTime @default(now())
 }
@@ -71,11 +82,10 @@ model ProgramExercise {
   exerciseId Int
   exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
-  sets       Int? // количество подходов
-  reps       Int? // количество повторений
-  order      Int  // порядок упражнения в программе
-
-  @@unique([programId, exerciseId]) // чтобы не было дублей
+  sets       Int?
+  reps       Int?
+  order      Int
+  @@unique([programId, exerciseId])
 }
 
 // ========== ПИТАНИЕ ==========
@@ -87,7 +97,7 @@ model Meal {
   mealType    String   // "breakfast", "lunch", "dinner", "snack"
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
+  favorites Favorite[]
   createdAt   DateTime @default(now())
 }
 
@@ -97,37 +107,79 @@ model Coaching {
   name        String
   description String?
   price       Int?
-  duration    String?  // "1 month", "3 months"
+  duration    String?
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  favorites Favorite[]
+  createdAt   DateTime @default(now())
+}
+
+// ========== СПОРТИВНОЕ ПИТАНИЕ ==========
+model Supplement {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  imageUrl    String?
+  price       Int?
+  weight      String?
+  flavor      String?
+  brand       String?
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime @default(now())
+
+  favorites   Favorite[]
 }
 
-
+// ========== ИЗБРАННОЕ ==========
 model Favorite {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           Int          @id @default(autoincrement())
+  userId       Int
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  entityType String   // "exercise", "program", "meal", "coaching"
-  entityId   Int
+  exerciseId   Int?
+  exercise     Exercise?    @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
-  createdAt  DateTime @default(now())
+  programId    Int?
+  program      Program?     @relation(fields: [programId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, entityType, entityId])
+  mealId       Int?
+  meal         Meal?        @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  coachingId   Int?
+  coaching     Coaching?    @relation(fields: [coachingId], references: [id], onDelete: Cascade)
+
+  supplementId Int?
+  supplement   Supplement?  @relation(fields: [supplementId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime     @default(now())
+
+  // Уникальность, чтобы нельзя было добавить одну и ту же сущность дважды
+  @@unique([userId, exerciseId])
+  @@unique([userId, programId])
+  @@unique([userId, mealId])
+  @@unique([userId, coachingId])
+  @@unique([userId, supplementId])
 }
 
-model VerificationCode {
-  id Int      @id @default(autoincrement())
-  user User @relation(fields: [userId], references: [id])
-  userId Int @unique
-  code String
+
+model MuscleGroup {
+  id        Int      @id @default(autoincrement())
+  name      String   // "Грудные", "Бицепс"
+  slug      String   @unique // "chest", "biceps" 
   createdAt DateTime @default(now())
-  @@unique([userId, code])
+
+  exercises Exercise[] 
 }
 
-enum UserRole {
-  USER
-  ADMIN
+// ========== КОД ВЕРИФИКАЦИИ ==========
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  code      String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, code])
 }
