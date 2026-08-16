@@ -1,17 +1,21 @@
+"use client";
 import { cn } from "@/lib/utils";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Container } from "./container";
 import Image from "next/image";
-import { Button, Input } from "../ui";
-import { ArrowRight, ShoppingCart, Star, User } from "lucide-react";
+import { Button } from "../ui";
+import { ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
 import { SearchInput } from "./searchInput";
+import { ProfileButton } from "./profile-button";
+import { AuthModal } from "./modals/auth-modal/auth-modal";
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: FC<HeaderProps> = ({ className }) => {
+  const [openModal, setOpenModal] = useState<boolean>(false);
   return (
     <header className={cn("border border-b", className)}>
       <Container className="flex items-center justify-between py-8">
@@ -33,14 +37,10 @@ export const Header: FC<HeaderProps> = ({ className }) => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Button className="flex items-center gap-1" variant="outline">
-            <User size={16} />
-            Войти
-          </Button>
+          <AuthModal open={openModal} onClose={() => setOpenModal(false)} />
+          <ProfileButton onClickSignIn={() => setOpenModal(true)} />
           <div>
             <Button className="group relative">
-              {/* <b>520 ₽</b>
-              <span className="h-full w-[1px] bg-white/30 mx-3" /> */}
               <div className="flex items-center gap-1 transition duration-300 group-hover:opacity-0">
                 <Star size={16} className="relative" strokeWidth={2} />
                 <b>3</b>

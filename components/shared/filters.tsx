@@ -74,5 +74,3 @@ export const Filters: FC<FiltersProps> = ({ className, onFilterChange }) => {
     </div>
   );
 };
-
-export default Filters;

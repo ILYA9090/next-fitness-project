@@ -173,3 +173,15 @@ html {
     @apply font-sans;
   }
 }
+
+#nprogress .bar {
+  @apply !bg-indigo-500;
+}
+
+#nprogress .peg {
+  @apply !shadow-md !shadow-indigo-500/50;
+}
+
+#nprogress .spinner-icon {
+  @apply !border-t-indigo-500 !border-l-indigo-500;
+}

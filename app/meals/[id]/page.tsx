@@ -74,9 +74,7 @@ export default async function MealPage({ params }: MealPageProps) {
           </div>
         )}
 
-        <div className="mt-6 text-sm text-gray-500">
-          ⭐ {meal._count.favorites} в избранном
-        </div>
+        <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
       </div>
     </Container>
   );

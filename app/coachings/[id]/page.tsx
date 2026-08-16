@@ -74,9 +74,7 @@ export default async function CoachingPage({ params }: CoachingPageProps) {
           </div>
         )}
 
-        <div className="mt-6 text-sm text-gray-500">
-          ⭐ {coaching._count.favorites} в избранном
-        </div>
+        <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
       </div>
     </Container>
   );

@@ -29,7 +29,6 @@ export const ProductsList: FC<ProductsListProps> = (props) => {
     },
   );
 
-  // Получаем slug для категории по её ID
   const categorySlug =
     CATEGORIES.find((cat) => cat.id === categoryId)?.slug || "";
 
@@ -44,7 +43,6 @@ export const ProductsList: FC<ProductsListProps> = (props) => {
   }
 
   return (
-    // ✅ Используем slug вместо русского названия для id
     <div className={cn("", className)} id={categorySlug} ref={intersectionRef}>
       <Title text={title} className="font-extrabold mb-5" size="xl" />
       <div className={cn("grid grid-cols-2 gap-[50px]", listClassName)}>
@@ -62,5 +60,3 @@ export const ProductsList: FC<ProductsListProps> = (props) => {
     </div>
   );
 };
-
-export default ProductsList;

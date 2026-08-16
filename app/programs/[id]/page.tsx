@@ -143,9 +143,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
           </div>
         </div>
 
-        <div className="mt-6 text-sm text-gray-500">
-          ⭐ {program._count.favorites} в избранном
-        </div>
+        <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
       </div>
     </Container>
   );

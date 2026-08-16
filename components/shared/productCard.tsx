@@ -1,4 +1,3 @@
-// components/shared/productCard.tsx
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { FC } from "react";
@@ -20,7 +19,6 @@ const ProductCard: FC<ProductCardProps> = ({
   type,
   className,
 }) => {
-  // Генерируем правильный URL в зависимости от типа
   const hrefMap = {
     exercise: `/exercises/${id}`,
     program: `/programs/${id}`,
