@@ -95,9 +95,7 @@ export default async function SupplementPage({ params }: SupplementPageProps) {
             </div>
           )}
 
-          <div className="mt-6 text-sm text-gray-500">
-            ⭐ {supplement._count.favorites} в избранном
-          </div>
+          <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
         </div>
       </div>
     </Container>

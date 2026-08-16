@@ -10,7 +10,6 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-// ========== ОЧИСТКА БД ==========
 async function down() {
   console.log("🧹 Очищаем базу данных...");
 
@@ -30,11 +29,9 @@ async function down() {
   console.log("✅ База очищена");
 }
 
-// ========== НАПОЛНЕНИЕ БД ==========
 async function up() {
   console.log("🌱 Начинаем сидирование...");
 
-  // ========== ПОЛЬЗОВАТЕЛИ ==========
   console.log("👤 Создаём пользователей...");
 
   await prisma.user.createMany({
@@ -64,7 +61,6 @@ async function up() {
   });
   console.log("✅ Добавлены пользователи");
 
-  // ========== КАТЕГОРИИ ==========
   console.log("📁 Создаём категории...");
 
   await prisma.category.createMany({
@@ -77,7 +73,6 @@ async function up() {
     ],
   });
 
-  // ========== ГРУППЫ МЫШЦ ==========
   console.log("💪 Создаём группы мышц...");
 
   await prisma.muscleGroup.createMany({
@@ -100,24 +95,20 @@ async function up() {
   });
   console.log("✅ Добавлены группы мышц");
 
-  // ========== УПРАЖНЕНИЯ ==========
   console.log("🏋️ Создаём упражнения...");
 
   const exerciseCategory = await prisma.category.findUnique({
     where: { slug: "exercises" },
   });
 
-  // Получаем все группы мышц для привязки
   const muscleGroups = await prisma.muscleGroup.findMany();
   const getMuscleGroupId = (slug: string) => {
     return muscleGroups.find((mg) => mg.slug === slug)?.id;
   };
 
   if (exerciseCategory) {
-    // Создаём упражнения
     await prisma.exercise.createMany({
       data: [
-        // ГРУДНЫЕ
         {
           name: "Жим лёжа",
           description: "Классическое упражнение на грудные мышцы",
@@ -136,21 +127,18 @@ async function up() {
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // БИЦЕПС
         {
           name: "Сгибание рук с гантелями",
           description: "Изолирующее упражнение на бицепс",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // ТРИЦЕПС
         {
           name: "Французский жим лёжа",
           description: "Изолирующее упражнение на трицепс",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // ПЛЕЧИ (ДЕЛЬТЫ)
         {
           name: "Жим гантелей сидя",
           description: "Упражнение для дельт",
@@ -163,7 +151,6 @@ async function up() {
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // СПИНА
         {
           name: "Становая тяга",
           description: "Упражнение для всего тела, проработка спины и ног",
@@ -182,7 +169,6 @@ async function up() {
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // НОГИ
         {
           name: "Приседания со штангой",
           description: "Базовое упражнение для ног и ягодиц",
@@ -195,14 +181,12 @@ async function up() {
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // ЯГОДИЦЫ
         {
           name: "Выпады с гантелями",
           description: "Упражнение для ног и ягодиц",
           videoUrl: "",
           categoryId: exerciseCategory.id,
         },
-        // ПРЕСС
         {
           name: "Скручивания на пресс",
           description: "Базовое упражнение на пресс",
@@ -219,7 +203,6 @@ async function up() {
     });
     console.log("✅ Добавлены упражнения");
 
-    // ========== ПРИВЯЗКА УПРАЖНЕНИЙ К ГРУППАМ МЫШЦ ==========
     console.log("🔗 Привязываем упражнения к группам мышц...");
 
     const createdExercises = await prisma.exercise.findMany();
@@ -263,7 +246,6 @@ async function up() {
       { name: "Планка", muscleSlugs: ["abs", "front-delt"] },
     ];
 
-    // Собираем все связи в один массив
     const connections: { exerciseId: number; muscleGroupId: number }[] = [];
 
     for (const item of exerciseMuscleMap) {
@@ -281,7 +263,6 @@ async function up() {
       }
     }
 
-    // Массовая вставка через raw SQL (мгновенно!)
     if (connections.length > 0) {
       const values = connections
         .map((c) => `(${c.exerciseId}, ${c.muscleGroupId})`)
@@ -299,7 +280,6 @@ async function up() {
     }
   }
 
-  // ========== ПРОГРАММЫ ==========
   console.log("📋 Создаём программы...");
 
   const programCategory = await prisma.category.findUnique({
@@ -335,7 +315,6 @@ async function up() {
     });
     console.log("✅ Добавлены программы");
 
-    // ========== СВЯЗЬ ПРОГРАММА → УПРАЖНЕНИЯ ==========
     console.log("🔗 Связываем программы с упражнениями...");
 
     const programs = await prisma.program.findMany();
@@ -363,7 +342,6 @@ async function up() {
     }
   }
 
-  // ========== ПИТАНИЕ ==========
   console.log("🍎 Создаём блюда...");
 
   const mealCategory = await prisma.category.findUnique({
@@ -414,7 +392,6 @@ async function up() {
     console.log("✅ Добавлены блюда");
   }
 
-  // ========== ОНЛАЙН-ВЕДЕНИЕ ==========
   console.log("👨‍🏫 Создаём онлайн-ведение...");
 
   const coachingCategory = await prisma.category.findUnique({
@@ -451,7 +428,6 @@ async function up() {
     console.log("✅ Добавлены онлайн-ведения");
   }
 
-  // ========== СПОРТИВНОЕ ПИТАНИЕ ==========
   console.log("💊 Создаём спортивное питание...");
 
   const supplementCategory = await prisma.category.findUnique({
@@ -521,9 +497,6 @@ async function up() {
     console.log("✅ Добавлены товары спортивного питания");
   }
 
-  // ============================================================
-  // ========== ИЗБРАННОЕ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ ==========
-  // ============================================================
   console.log("⭐ Добавляем избранное для пользователей...");
 
   const users = await prisma.user.findMany();

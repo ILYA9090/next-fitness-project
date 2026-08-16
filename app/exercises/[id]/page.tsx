@@ -78,9 +78,7 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
           )}
 
           <div className="mt-6 flex items-center gap-4">
-            <span className="text-sm text-gray-500">
-              ⭐ {exercise._count.favorites} в избранном
-            </span>
+            <span className="text-sm text-gray-500">⭐ в избранном</span>
           </div>
         </div>
       </div>

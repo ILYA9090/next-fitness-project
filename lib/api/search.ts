@@ -1,4 +1,3 @@
-// lib/api/search.ts
 import { axiosInstance } from "./instance";
 import type { SearchResponse } from "./types";
 import type { AxiosRequestConfig } from "axios";
