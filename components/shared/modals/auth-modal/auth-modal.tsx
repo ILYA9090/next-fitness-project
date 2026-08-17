@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { signIn } from "next-auth/react";
 import { useCallback, useState } from "react";
 import { LoginForm } from "./forms/loginForm";
+import { RegisterForm } from "./forms/registerForm";
 
 interface AuthModalProps {
   className?: string;
@@ -29,7 +30,11 @@ export const AuthModal = (props: AuthModalProps) => {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn("w-[450px]", className)}>
-        {type === "login" ? <LoginForm onClose={handleClose} /> : "регистрация"}
+        {type === "login" ? (
+          <LoginForm onClose={handleClose} />
+        ) : (
+          <RegisterForm onClose={handleClose} />
+        )}
         <hr />
         <div className="flex gap-2 justify-center w-full">
           <Button

@@ -4,8 +4,9 @@ import { prisma } from "./prisma/prisma-client";
 import { compare, hashSync } from "bcrypt";
 import { UserRole } from "./lib/generated/prisma";
 import { randomBytes } from "crypto";
+import { AuthOptions } from "next-auth";
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_ID || "",
@@ -123,21 +124,27 @@ export const authOptions = {
       }
     },
     async jwt({ token }) {
+      if (!token.email) {
+        return token;
+      }
+
       const findUser = await prisma.user.findFirst({
         where: { email: token.email },
       });
+
       if (findUser) {
         token.id = String(findUser.id);
         token.email = findUser.email;
         token.name = findUser.name;
         token.role = findUser.role;
       }
+
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     },

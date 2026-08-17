@@ -5,8 +5,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { Button, Input } from "@/components/ui";
-import { formRegisterSchema, FormRegisterValues } from "./schema";
 import { registerUser } from "@/lib/api/actions";
+import {
+  formRegisterSchema,
+  FormRegisterValues,
+} from "./modals/auth-modal/forms/schema";
 
 interface Props {
   onClose?: VoidFunction;
@@ -26,19 +29,30 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
 
   const onSubmit = async (data: FormRegisterValues) => {
     try {
-      await registerUser({
+      const result = await registerUser({
         email: data.email,
         name: data.name,
         password: data.password,
       });
 
-      toast.success("Регистрация успешна 📝. Подтвердите свою почту", {
-        icon: "✅",
-      });
-
-      onClose?.();
+      // ✅ Обрабатываем успешный ответ
+      if (result.success) {
+        toast.success(
+          result.message || "Регистрация успешна! Проверьте почту.",
+          {
+            icon: "✅",
+          },
+        );
+        onClose?.();
+      }
     } catch (error) {
-      toast.error("Неверный E-Mail или пароль", {
+      // ✅ Обрабатываем ошибку с сервера
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Неизвестная ошибка при регистрации";
+
+      toast.error(errorMessage, {
         icon: "❌",
       });
     }
@@ -77,7 +91,9 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
           className="h-12 text-base"
           type="submit"
         >
-          Зарегистрироваться
+          {form.formState.isSubmitting
+            ? "Регистрация..."
+            : "Зарегистрироваться"}
         </Button>
       </form>
     </FormProvider>
