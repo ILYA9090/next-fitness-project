@@ -13,3 +13,4 @@ export { Providers } from "./providers/providers";
 export { default as HomeContent } from "./homeContent";
 export { ProfileButton } from "./profile-button";
 export { AuthModal } from "./modals/auth-modal/auth-modal";
+export { ProfileForm } from "./profileForm";

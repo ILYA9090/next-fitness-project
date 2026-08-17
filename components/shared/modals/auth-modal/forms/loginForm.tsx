@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 interface LoginFormProps {
   className?: string;
   onClose?: VoidFunction;
@@ -14,6 +15,7 @@ interface LoginFormProps {
 
 export const LoginForm = (props: LoginFormProps) => {
   const { onClose } = props;
+
   const form = useForm<FormLoginValues>({
     resolver: zodResolver(formLoginSchema),
     defaultValues: {
@@ -21,14 +23,15 @@ export const LoginForm = (props: LoginFormProps) => {
       password: "",
     },
   });
+
   const onSubmit = async (data: FormLoginValues) => {
     try {
-      const responce = await signIn("credentials", {
+      const response = await signIn("credentials", {
         ...data,
         redirect: false,
       });
 
-      if (!responce?.ok) {
+      if (!response?.ok) {
         toast.error("Не удалось войти в аккаунт", {
           icon: <X color="red" />,
         });
@@ -45,6 +48,7 @@ export const LoginForm = (props: LoginFormProps) => {
       });
     }
   };
+
   return (
     <FormProvider {...form}>
       <form
@@ -61,26 +65,31 @@ export const LoginForm = (props: LoginFormProps) => {
           <Title text="Вход в аккаунт" size="md" className="font-bold" />
           <p className="text-gray-400">Введите email и пароль</p>
         </div>
+
         <Input
-          name="email"
+          placeholder="Введите email"
           autoComplete="off"
-          className={cn(form.formState.errors.email && "border-red-500 ")}
+          className={cn(form.formState.errors.email && "border-red-500")}
+          {...form.register("email")}
         />
         {form.formState.errors.email && (
           <p className="text-red-500 text-sm mt-1">
             {form.formState.errors.email.message}
           </p>
         )}
+
         <Input
-          name="password"
+          placeholder="Введите пароль"
           autoComplete="off"
-          className={cn(form.formState.errors.password && "border-red-500 ")}
+          className={cn(form.formState.errors.password && "border-red-500")}
+          {...form.register("password")}
         />
         {form.formState.errors.password && (
           <p className="text-red-500 text-sm mt-1">
             {form.formState.errors.password.message}
           </p>
         )}
+
         <Button
           type="submit"
           className="h-12 text-base"
