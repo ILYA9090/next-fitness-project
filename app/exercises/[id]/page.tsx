@@ -4,6 +4,7 @@ import { Container } from "@/components/shared/container";
 import { Title } from "@/components/shared/title";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ExercisePageProps {
   params: Promise<{
@@ -39,8 +40,16 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
       </Link>
 
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-gray-100 rounded-2xl aspect-video flex items-center justify-center">
-          {exercise.videoUrl ? (
+        <div className="bg-gray-100 rounded-2xl aspect-video flex items-center justify-center overflow-hidden">
+          {exercise.imageUrl ? (
+            <img
+              src={exercise.imageUrl}
+              alt={exercise.name}
+              width={800}
+              height={450}
+              className="w-full h-full object-cover"
+            />
+          ) : exercise.videoUrl ? (
             <video
               src={exercise.videoUrl}
               controls
@@ -76,10 +85,6 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
               </p>
             </div>
           )}
-
-          <div className="mt-6 flex items-center gap-4">
-            <span className="text-sm text-gray-500">⭐ в избранном</span>
-          </div>
         </div>
       </div>
     </Container>

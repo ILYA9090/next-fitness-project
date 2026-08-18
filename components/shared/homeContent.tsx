@@ -16,6 +16,7 @@ interface Exercise {
   name: string;
   description: string;
   videoUrl: string | null;
+  imageUrl: string | null;
   muscleGroups: Array<{ id: number; name: string; slug: string }>;
 }
 
@@ -23,6 +24,7 @@ interface Program {
   id: number;
   name: string;
   description: string;
+  imageUrl: string | null;
   level: string;
   weeks: number;
   muscleGroups: Array<{ id: number; name: string; slug: string }>;
@@ -104,7 +106,7 @@ export default function HomeContent() {
 
         params.append("sortBy", sortBy);
         params.append("order", order);
-
+        params.append("limit", "40");
         const { data } = await axiosInstance.get<CatalogResponse>(
           `/catalog?${params.toString()}`,
         );
@@ -160,7 +162,8 @@ export default function HomeContent() {
                     items={exercises.map((ex) => ({
                       id: ex.id,
                       name: ex.name,
-                      imageUrl: ex.videoUrl || "/placeholder.jpg",
+                      imageUrl:
+                        ex.imageUrl || ex.videoUrl || "/placeholder.jpg",
                       description: ex.description || "",
                       type: "exercise",
                     }))}
@@ -174,7 +177,7 @@ export default function HomeContent() {
                     items={programs.map((prog) => ({
                       id: prog.id,
                       name: prog.name,
-                      imageUrl: "/placeholder-program.jpg",
+                      imageUrl: prog.imageUrl || "/placeholder-program.jpg",
                       description: prog.description || "",
                       type: "program",
                     }))}
@@ -224,15 +227,27 @@ export default function HomeContent() {
                   />
                 )}
 
-                {exercises.length === 0 &&
-                  programs.length === 0 &&
-                  meals.length === 0 &&
-                  supplements.length === 0 &&
-                  coachings.length === 0 && (
-                    <div className="text-center py-12 text-gray-500">
-                      Ничего не найдено по выбранным фильтрам
-                    </div>
-                  )}
+                {(() => {
+                  const hasVisibleContent = hasMuscleFilter
+                    ? exercises.length > 0 || programs.length > 0
+                    : exercises.length > 0 ||
+                      programs.length > 0 ||
+                      meals.length > 0 ||
+                      supplements.length > 0 ||
+                      coachings.length > 0;
+
+                  if (!hasVisibleContent) {
+                    return (
+                      <div className="text-center py-12">
+                        <p className="text-6xl mb-4">🔍</p>
+                        <p className="text-gray-500 text-lg">
+                          Ничего не найдено по выбранным фильтрам
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             )}
           </div>

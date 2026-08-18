@@ -73,8 +73,6 @@ export default async function MealPage({ params }: MealPageProps) {
             <p className="text-gray-600 leading-relaxed">{meal.description}</p>
           </div>
         )}
-
-        <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
       </div>
     </Container>
   );
