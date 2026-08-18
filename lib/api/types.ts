@@ -1,4 +1,3 @@
-// ===== БАЗОВЫЕ ТИПЫ =====
 export interface MuscleGroup {
   id: number;
   name: string;
@@ -10,7 +9,6 @@ export interface Category {
   name: string;
 }
 
-// ===== ТИПЫ ДЛЯ ПОИСКА =====
 export interface SearchExercise {
   id: number;
   name: string;

@@ -3,19 +3,23 @@ import { Resend } from "resend";
 export const sendEmail = async (
   to: string,
   subject: string,
-  template: React.ReactNode,
+  template: React.ReactNode | string,
 ) => {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
+  const isStringTemplate = typeof template === "string";
+
   const { data, error } = await resend.emails.send({
-    from: "onboarding@resend.dev",
+    from: "noreply@ilya-fitness.online",
     to,
     subject,
-    text: "",
-    react: template,
+    text: isStringTemplate ? template : "",
+    react: isStringTemplate ? undefined : template,
+    html: isStringTemplate ? template : undefined,
   });
 
   if (error) {
+    console.error("❌ Resend error:", error);
     throw error;
   }
 
