@@ -52,7 +52,6 @@ export const CheckboxFilterGroup: FC<CheckboxFilterGroupProps> = (props) => {
 
       setSelectedValues(newSelected);
 
-      // ✅ Вызываем onChange с новым массивом
       if (onChange) {
         onChange(newSelected);
       }

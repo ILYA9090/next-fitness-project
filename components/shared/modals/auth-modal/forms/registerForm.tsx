@@ -24,6 +24,8 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
     },
   });
 
+  const { errors, isSubmitting } = form.formState;
+
   const onSubmit = async (data: FormRegisterValues) => {
     try {
       await registerUser({
@@ -38,7 +40,7 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
 
       onClose?.();
     } catch (error) {
-      toast.error("Неверный E-Mail или пароль", {
+      toast.error("Вы уже зарегистрированы", {
         icon: "❌",
       });
     }
@@ -48,36 +50,65 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
     <FormProvider {...form}>
       <form
         className="flex flex-col gap-5"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, (formErrors) => {
+          console.log("❌ Ошибки валидации:", formErrors);
+          toast.error("Заполните все поля корректно", {
+            icon: "❌",
+          });
+        })}
       >
-        <Input
-          placeholder="Введите почту"
-          required
-          {...form.register("email")}
-        />
+        <div>
+          <Input
+            placeholder="Введите почту"
+            required
+            {...form.register("email")}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
 
-        <Input placeholder="Полное имя" required {...form.register("name")} />
+        <div>
+          <Input placeholder="Полное имя" required {...form.register("name")} />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
+        </div>
 
-        <Input
-          placeholder="Введите пароль"
-          type="password"
-          required
-          {...form.register("password")}
-        />
+        <div>
+          <Input
+            placeholder="Введите пароль"
+            type="password"
+            required
+            {...form.register("password")}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-        <Input
-          placeholder="Подтвердите пароль"
-          type="password"
-          required
-          {...form.register("confirmPassword")}
-        />
+        <div>
+          <Input
+            placeholder="Подтвердите пароль"
+            type="password"
+            required
+            {...form.register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
 
         <Button
-          disabled={form.formState.isSubmitting}
+          disabled={isSubmitting}
           className="h-12 text-base"
           type="submit"
         >
-          Зарегистрироваться
+          {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
         </Button>
       </form>
     </FormProvider>

@@ -1,4 +1,3 @@
-// app/api/catalog/route.ts
 import { prisma } from "@/prisma/prisma-client";
 import { Prisma } from "@/lib/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
@@ -20,7 +19,6 @@ export async function GET(request: NextRequest) {
       ? sortBy
       : "createdAt";
 
-    // Фильтры для упражнений
     const exerciseWhere: Prisma.ExerciseWhereInput = {};
     if (muscleGroups.length > 0) {
       if (matchAll) {
@@ -34,7 +32,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Фильтры для программ
     const programWhere: Prisma.ProgramWhereInput = {};
     if (muscleGroups.length > 0) {
       if (matchAll) {
@@ -60,13 +57,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Фильтры для питания (если нужна фильтрация по группам мышц — добавьте логику)
     const mealWhere: Prisma.MealWhereInput = {};
 
-    // Фильтры для спортпита
     const supplementWhere: Prisma.SupplementWhereInput = {};
 
-    // Фильтры для коучинга
     const coachingWhere: Prisma.CoachingWhereInput = {};
 
     const [
@@ -174,7 +168,6 @@ export async function GET(request: NextRequest) {
       prisma.coaching.count({ where: coachingWhere }),
     ]);
 
-    // Обработка программ для получения групп мышц
     const programsWithMuscles = programs.map((program) => {
       const muscleMap = new Map<
         number,

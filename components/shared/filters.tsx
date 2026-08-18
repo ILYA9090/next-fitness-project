@@ -1,10 +1,10 @@
-// components/shared/filters.tsx
 "use client";
 
 import { FC, useEffect, useState } from "react";
 import { Title } from "./title";
 import CheckboxFilterGroup from "./checkbox-filter-group";
 import { axiosInstance } from "@/lib/api/instance";
+import { Skeleton } from "../ui";
 
 interface MuscleGroup {
   id: number;
@@ -47,8 +47,15 @@ export const Filters: FC<FiltersProps> = ({ className, onFilterChange }) => {
   if (loading) {
     return (
       <div className={className}>
-        <Title text="Фильтрация" size="sm" className="mb-5 font-bold" />
-        <div className="text-gray-500">Загрузка...</div>
+        <p className="font-bold mb-3">Группы мышц</p>
+
+        {...Array(4)
+          .fill(0)
+          .map((_, index) => (
+            <Skeleton key={index} className="h-6 mb-4 rounded-[8px]" />
+          ))}
+
+        <Skeleton className="w-28 h-6 mb-4 rounded-[8px]" />
       </div>
     );
   }

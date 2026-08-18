@@ -88,9 +88,12 @@ export default function HomeContent() {
   const sortBy = searchParams.get("sortBy") || "createdAt";
   const order = searchParams.get("order") || "desc";
 
+  const hasMuscleFilter = selectedMuscleGroups.length > 0;
+
   useEffect(() => {
     const fetchData = async () => {
       setError(null);
+      setLoading(true);
 
       try {
         const params = new URLSearchParams();
@@ -179,7 +182,7 @@ export default function HomeContent() {
                   />
                 )}
 
-                {meals.length > 0 && (
+                {!hasMuscleFilter && meals.length > 0 && (
                   <ProductsList
                     title="🍎 Питание"
                     items={meals.map((meal) => ({
@@ -193,7 +196,7 @@ export default function HomeContent() {
                   />
                 )}
 
-                {supplements.length > 0 && (
+                {!hasMuscleFilter && supplements.length > 0 && (
                   <ProductsList
                     title="💊 Спортивное питание"
                     items={supplements.map((sup) => ({
@@ -207,7 +210,7 @@ export default function HomeContent() {
                   />
                 )}
 
-                {coachings.length > 0 && (
+                {!hasMuscleFilter && coachings.length > 0 && (
                   <ProductsList
                     title="👨‍🏫 Онлайн-ведение"
                     items={coachings.map((coach) => ({
