@@ -98,3 +98,110 @@ export const registerUser = async (body: Prisma.UserCreateInput) => {
     );
   }
 };
+export type FavoriteEntityType =
+  "exercise" | "program" | "meal" | "supplement" | "coaching";
+
+export const toggleFavorite = async (
+  entityId: number,
+  entityType: FavoriteEntityType,
+) => {
+  try {
+    const currentUser = await getUserSession();
+
+    if (!currentUser) {
+      throw new Error("Пользователь не авторизован");
+    }
+
+    const userId = Number(currentUser.id);
+
+    const fieldMap: Record<FavoriteEntityType, string> = {
+      exercise: "exerciseId",
+      program: "programId",
+      meal: "mealId",
+      supplement: "supplementId",
+      coaching: "coachingId",
+    };
+
+    const fieldName = fieldMap[entityType];
+
+    const existingFavorite = await prisma.favorite.findFirst({
+      where: {
+        userId,
+        [fieldName]: entityId,
+      },
+    });
+
+    if (existingFavorite) {
+      await prisma.favorite.delete({
+        where: { id: existingFavorite.id },
+      });
+    } else {
+      await prisma.favorite.create({
+        data: {
+          userId,
+          [fieldName]: entityId,
+        },
+      });
+    }
+
+    revalidatePath("/");
+    revalidatePath("/exercises");
+    revalidatePath("/programs");
+    revalidatePath("/meals");
+    revalidatePath("/supplements");
+    revalidatePath("/coachings");
+
+    return {
+      success: true,
+      isFavorited: !existingFavorite,
+    };
+  } catch (error) {
+    console.error("❌ Ошибка при работе с избранным:", error);
+    throw new Error(
+      error instanceof Error ? error.message : "Не удалось обновить избранное",
+    );
+  }
+};
+export type FavoriteItem = {
+  id: number;
+  type: "exercise" | "program" | "meal" | "supplement" | "coaching";
+};
+
+export const getFavorites = async (): Promise<FavoriteItem[]> => {
+  try {
+    const currentUser = await getUserSession();
+
+    if (!currentUser) {
+      return [];
+    }
+
+    const userId = Number(currentUser.id);
+
+    const favorites = await prisma.favorite.findMany({
+      where: { userId },
+      select: {
+        exerciseId: true,
+        programId: true,
+        mealId: true,
+        supplementId: true,
+        coachingId: true,
+      },
+    });
+
+    const items: FavoriteItem[] = [];
+
+    favorites.forEach((fav) => {
+      if (fav.exerciseId) items.push({ id: fav.exerciseId, type: "exercise" });
+      if (fav.programId) items.push({ id: fav.programId, type: "program" });
+      if (fav.mealId) items.push({ id: fav.mealId, type: "meal" });
+      if (fav.supplementId)
+        items.push({ id: fav.supplementId, type: "supplement" });
+      if (fav.coachingId) items.push({ id: fav.coachingId, type: "coaching" });
+    });
+
+    return items;
+  } catch (error) {
+    console.error("❌ Ошибка получения избранного:", error);
+    return [];
+  }
+};

@@ -47,25 +47,28 @@ model Category {
 model Exercise {
   id           Int           @id @default(autoincrement())
   name         String
-  description  String?
+  shortDescription String?   
+  description  String?       
   videoUrl     String?
+  imageUrl     String? 
   categoryId   Int
   category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   
-  muscleGroups MuscleGroup[] // implicit many-to-many!
+  muscleGroups MuscleGroup[]
 
   favorites         Favorite[]
   programExercises  ProgramExercise[]
   createdAt         DateTime @default(now())
 }
 
-
 // ========== ПРОГРАММЫ ==========
 model Program {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
-  level       String   // "easy", "medium", "hard"
+  shortDescription String?   
+  description  String?       
+  level       String
+  imageUrl    String?  
   weeks       Int?
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -92,9 +95,10 @@ model ProgramExercise {
 model Meal {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
+  shortDescription String?   
+  description  String?       
   calories    Int?
-  mealType    String   // "breakfast", "lunch", "dinner", "snack"
+  mealType    String
   categoryId  Int
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   favorites Favorite[]
@@ -105,7 +109,8 @@ model Meal {
 model Coaching {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
+  shortDescription String?   
+  description  String?       
   price       Int?
   duration    String?
   categoryId  Int
@@ -118,7 +123,8 @@ model Coaching {
 model Supplement {
   id          Int      @id @default(autoincrement())
   name        String
-  description String?
+  shortDescription String?   
+  description  String?       
   imageUrl    String?
   price       Int?
   weight      String?
@@ -155,7 +161,6 @@ model Favorite {
 
   createdAt    DateTime     @default(now())
 
-  // Уникальность, чтобы нельзя было добавить одну и ту же сущность дважды
   @@unique([userId, exerciseId])
   @@unique([userId, programId])
   @@unique([userId, mealId])
@@ -163,11 +168,10 @@ model Favorite {
   @@unique([userId, supplementId])
 }
 
-
 model MuscleGroup {
   id        Int      @id @default(autoincrement())
-  name      String   // "Грудные", "Бицепс"
-  slug      String   @unique // "chest", "biceps" 
+  name      String
+  slug      String   @unique
   createdAt DateTime @default(now())
 
   exercises Exercise[] 

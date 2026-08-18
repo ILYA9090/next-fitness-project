@@ -94,8 +94,6 @@ export default async function SupplementPage({ params }: SupplementPageProps) {
               </p>
             </div>
           )}
-
-          <div className="mt-6 text-sm text-gray-500">⭐ в избранном</div>
         </div>
       </div>
     </Container>

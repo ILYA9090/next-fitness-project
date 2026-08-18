@@ -52,7 +52,7 @@ export const ProductsList: FC<ProductsListProps> = (props) => {
             id={item.id}
             name={item.name}
             imageUrl={item.imageUrl}
-            description={item.description}
+            shortDescription={item.shortDescription}
             type={item.type}
           />
         ))}
