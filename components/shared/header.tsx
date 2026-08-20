@@ -4,7 +4,7 @@ import { FC, useEffect, useState } from "react";
 import { Container } from "./container";
 import Image from "next/image";
 import { Button } from "../ui";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
 import { SearchInput } from "./searchInput";
 import { ProfileButton } from "./profile-button";
@@ -20,7 +20,6 @@ export const Header: FC<HeaderProps> = ({ className }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const router = useRouter();
-
   useEffect(() => {
     let toastMessage = "";
     if (searchParams.has("verified")) {
@@ -60,16 +59,17 @@ export const Header: FC<HeaderProps> = ({ className }) => {
           <AuthModal open={openModal} onClose={() => setOpenModal(false)} />
           <ProfileButton onClickSignIn={() => setOpenModal(true)} />
           <div>
-            <Button className="group relative">
-              <div className="flex items-center gap-1 transition duration-300 group-hover:opacity-0">
-                <Star size={16} className="relative" strokeWidth={2} />
-                <b>3</b>
-              </div>
-              <ArrowRight
-                size={20}
-                className=" absolute right-5 transition duration-300 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0"
-              />
-            </Button>
+            <Link href="/favorites">
+              <Button className="group relative">
+                <div className="flex items-center gap-1 transition duration-300 group-hover:opacity-0">
+                  <Heart size={16} className="relative" strokeWidth={2} />
+                </div>
+                <ArrowRight
+                  size={20}
+                  className=" absolute right-5 transition duration-300 -translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0"
+                />
+              </Button>
+            </Link>
           </div>
         </div>
       </Container>
